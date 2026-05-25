@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MindAR AR Video Example</title>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.0/dist/mindar-image.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aframe@1.3.0/dist/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.0/dist/mindar-image-aframe.prod.js"></script>
+  <style>
+    body, html {
+      margin: 0; padding: 0; overflow: hidden;
+      width: 100%; height: 100%;
+      background-color: #000;
+    }
+  </style>
+</head>
+<body>
+  <a-scene mindar-image="imageTargetSrc: ./targets.mind;" 
+           vr-mode-ui="enabled: false" 
+           device-orientation-permission-ui="enabled: false" 
+           embedded 
+           color-space="sRGB" 
+           renderer="colorManagement: true, physicallyCorrectLights: true" 
+           shadow="type:pcfsoft">
+
+    <!-- Kamera AR -->
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+    <!-- Target AR: video di atas gambar -->
+    <a-video id="arVideo" src="#video1" width="1.2" height="0.68" position="0 0 0"></a-video>
+
+  </a-scene>
+
+  <!-- Video yang akan diputar -->
+  <video id="video1" muted playsinline crossorigin="anonymous" loop preload="auto" webkit-playsinline>
+    <source src="video.mp4" type="video/mp4" />
+  </video>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const sceneEl = document.querySelector('a-scene');
+      const videoEl = document.getElementById('video1');
+      const arVideo = document.getElementById('arVideo');
+
+      sceneEl.addEventListener("renderstart", async () => {
+        const mindarComponent = sceneEl.components['mindar-image'];
+        await mindarComponent.start();
+        videoEl.play().catch(() => {});
+
+        // Ketika target terdeteksi, play video
+        mindarComponent.el.addEventListener("targetFound", () => {
+          if (videoEl.paused) videoEl.play();
+        });
+
+        // Ketika target hilang, pause video
+        mindarComponent.el.addEventListener("targetLost", () => {
+          if (!videoEl.paused) videoEl.pause();
+          videoEl.currentTime = 0;
+        });
+      });
+    });
+  </script>
+</body>
+</html>
