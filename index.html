@@ -2,28 +2,68 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AR.js Video with .patt Marker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>AR.js Video with .patt Marker - Fullscreen Camera</title>
+
+  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  <!-- AR.js for A-Frame -->
   <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+
   <style>
-    body, html {
+    html, body {
       margin: 0; padding: 0; overflow: hidden;
       width: 100%; height: 100%;
       background-color: #000;
+      touch-action: none;
+      -webkit-user-select: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    a-scene {
+      width: 100vw;
+      height: 100vh;
+      position: fixed;
+      top: 0; left: 0;
+      margin: 0; padding: 0;
     }
   </style>
 </head>
 <body>
-
-  <a-scene embedded arjs="sourceType: webcam;">
+  
+  <a-scene embedded arjs="sourceType: webcam;" vr-mode-ui="enabled: false" loading-screen="enabled: false" keyboard-shortcuts="enabled: false">
+    
+    <!-- Marker pattern sesuai file .patt Anda -->
     <a-marker type="pattern" url="pattern-marker.patt">
-      <a-video src="#video1" position="0 0 0" rotation="-90 0 0" width="1" height="0.56"></a-video>
+
+      <!-- Video yang akan ditampilkan di posisi marker -->
+      <a-video src="#vid" position="0 0 0" rotation="-90 0 0" width="1" height="0.56"></a-video>
+
     </a-marker>
+
+    <!-- Kamera -->
     <a-entity camera></a-entity>
 
-    <video id="video1" autoplay loop muted playsinline webkit-playsinline crossorigin="anonymous" preload="auto" src="video.mp4"></video>
+    <!-- Video element yang dihubungkan ke a-video -->
+    <video id="vid" src="video.mp4" autoplay loop muted playsinline webkit-playsinline crossorigin="anonymous" preload="auto"></video>
+
   </a-scene>
+
+  <script>
+    // Video otomatis diputar saat marker terdeteksi
+    const video = document.getElementById('vid');
+    const scene = document.querySelector('a-scene');
+
+    scene.addEventListener('markerFound', () => {
+      if (video.paused) video.play().catch(() => {});
+    });
+
+    scene.addEventListener('markerLost', () => {
+      if (!video.paused) {
+        video.pause();
+        video.currentTime = 0;
+      }
+    });
+  </script>
 
 </body>
 </html>
