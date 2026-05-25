@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>AR.js Video with .patt Marker - Fullscreen Camera</title>
+  <title>AR-kaos Project - Video AR dengan .patt Marker</title>
 
   <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
@@ -29,36 +29,37 @@
   </style>
 </head>
 <body>
-  
+
   <a-scene embedded arjs="sourceType: webcam;" vr-mode-ui="enabled: false" loading-screen="enabled: false" keyboard-shortcuts="enabled: false">
-    
-    <!-- Marker pattern sesuai file .patt Anda -->
+
+    <!-- Marker dengan pola dari file pattern-marker.patt -->
     <a-marker type="pattern" url="pattern-marker.patt">
 
-      <!-- Video yang akan ditampilkan di posisi marker -->
-      <a-video src="#vid" position="0 0 0" rotation="-90 0 0" width="1" height="0.56"></a-video>
+      <!-- Video yang akan muncul di posisi marker -->
+      <a-video src="#ar-video" position="0 0 0" rotation="-90 0 0" width="1" height="0.56"></a-video>
 
     </a-marker>
 
-    <!-- Kamera -->
+    <!-- Kamera AR -->
     <a-entity camera></a-entity>
 
-    <!-- Video element yang dihubungkan ke a-video -->
-    <video id="vid" src="video.mp4" autoplay loop muted playsinline webkit-playsinline crossorigin="anonymous" preload="auto"></video>
+    <!-- Elemen video asli yang dipakai sebagai sumber video AR -->
+    <video id="ar-video" src="video.mp4" loop muted playsinline webkit-playsinline crossorigin="anonymous" preload="auto"></video>
 
   </a-scene>
 
   <script>
-    // Video otomatis diputar saat marker terdeteksi
-    const video = document.getElementById('vid');
-    const scene = document.querySelector('a-scene');
+    const video = document.getElementById('ar-video');
+    const marker = document.querySelector('a-marker');
 
-    scene.addEventListener('markerFound', () => {
-      if (video.paused) video.play().catch(() => {});
+    // Saat marker ditemukan, mainkan video
+    marker.addEventListener('markerFound', () => {
+      if(video.paused) video.play().catch(err => console.log('Error play video:', err));
     });
 
-    scene.addEventListener('markerLost', () => {
-      if (!video.paused) {
+    // Saat marker hilang, pause dan reset video
+    marker.addEventListener('markerLost', () => {
+      if(!video.paused){
         video.pause();
         video.currentTime = 0;
       }
